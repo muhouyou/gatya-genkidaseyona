@@ -367,4 +367,304 @@
   </section>
 
   <!-- APP -->
-  <section id="appS
+  <section id="appScreen" style="display:none;">
+    <div class="container">
+      <div class="title">元気出せよガチャ</div>
+      <div class="subtitle">ボタン押して、出たやつ再生して、元気を取り返せ。</div>
+
+      <div class="grid">
+        <!-- GACHA 1 -->
+        <div class="card">
+          <h2>🌤️ やさしめ</h2>
+
+          <div class="row">
+            <button class="btn-round" id="rollSoft">ガチャ</button>
+            <button class="btn-play" id="playSoft" aria-label="再生">
+              ▶ 再生
+            </button>
+          </div>
+
+          <div class="result normal" id="resultSoft">
+            <div class="fx rare"  data-fx="rare"></div>
+            <div class="fx srare" data-fx="srare"></div>
+            <div class="fx ssrare" data-fx="ssrare"></div>
+            <div class="fx ultra" data-fx="ultra"></div>
+
+            <div class="rarity" id="raritySoft">未排出</div>
+            <div class="name" id="nameSoft">—</div>
+          </div>
+        </div>
+
+        <!-- GACHA 2 -->
+        <div class="card">
+          <h2>🔥 強め</h2>
+
+          <div class="row">
+            <button class="btn-round" id="rollHard">ガチャ</button>
+            <button class="btn-play" id="playHard" aria-label="再生">
+              ▶ 再生
+            </button>
+          </div>
+
+          <div class="result normal" id="resultHard">
+            <div class="fx rare"  data-fx="rare"></div>
+            <div class="fx srare" data-fx="srare"></div>
+            <div class="fx ssrare" data-fx="ssrare"></div>
+            <div class="fx ultra" data-fx="ultra"></div>
+
+            <div class="rarity" id="rarityHard">未排出</div>
+            <div class="name" id="nameHard">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        © 身内ノリ秘密基地 / “元気出せよ”
+      </div>
+    </div>
+
+    <audio id="player" preload="none"></audio>
+  </section>
+
+  <script>
+    /***********************************************************
+     * 0) パスワード（ここだけ最初に変えてOK）
+     ***********************************************************/
+    const PASSWORD = "muhomuho"; // ←好きに変えて
+
+    // ログイン状態を保持（同じ端末・同じブラウザなら再入力省略）
+    const AUTH_KEY = "gacha_auth_ok_v1";
+
+    /***********************************************************
+     * 1) レアリティ定義（5段階）
+     ***********************************************************/
+    const RARITY = {
+      NORMAL:  { key:"normal",  label:"ノーマル",  weight: 62 },
+      RARE:    { key:"rare",    label:"レア",      weight: 22 },
+      SRARE:   { key:"srare",   label:"Sレア",     weight: 10 },
+      SSRARE:  { key:"ssrare",  label:"SSレア",    weight: 5  },
+      ULTRA:   { key:"ultra",   label:"ウルトラレア", weight: 1 }
+    };
+
+    // weight は「出やすさ（比率）」：合計が100じゃなくてもOK（内部で比率扱い）
+
+    /***********************************************************
+     * 2) ガチャ中身（後でここだけ差し替えればOK）
+     *    - file: 実ファイル名（パス含む）
+     *    - title: 画面に出す表示名（ファイル名と別でOK）
+     *    - rarity: RARITYのkey
+     ***********************************************************/
+    const POOL_SOFT = [
+      // --- ノーマル ---
+      { file:"assets/audio/bougen/a001.mp3", title:"（表示名）やさしめ1", rarity:"normal" },
+      { file:"assets/audio/bougen/a002.mp3", title:"（表示名）やさしめ2", rarity:"normal" },
+      { file:"assets/audio/bougen/a003.mp3", title:"（表示名）やさしめ3", rarity:"normal" },
+
+      // --- レア ---
+      { file:"assets/audio/bougen/r001.mp3", title:"（表示名）やさしめレア1", rarity:"rare" },
+
+      // --- Sレア ---
+      { file:"assets/audio/bougen/s001.mp3", title:"（表示名）やさしめSレア1", rarity:"srare" },
+
+      // --- SSレア ---
+      { file:"assets/audio/bougen/ss001.mp3", title:"（表示名）やさしめSSレア1", rarity:"ssrare" },
+
+      // --- ウルトラレア ---
+      { file:"assets/audio/bougen/u001.mp3", title:"（表示名）やさしめウルトラ", rarity:"ultra" },
+    ];
+
+    const POOL_HARD = [
+      // --- ノーマル ---
+      { file:"assets/audio/simoneta/a001.mp3", title:"（表示名）強め1", rarity:"normal" },
+      { file:"assets/audio/simoneta/a002.mp3", title:"（表示名）強め2", rarity:"normal" },
+      { file:"assets/audio/simoneta/a003.mp3", title:"（表示名）強め3", rarity:"normal" },
+
+      // --- レア ---
+      { file:"assets/audio/simoneta/r001.mp3", title:"（表示名）強めレア1", rarity:"rare" },
+
+      // --- Sレア ---
+      { file:"assets/audio/simoneta/s001.mp3", title:"（表示名）強めSレア1", rarity:"srare" },
+
+      // --- SSレア ---
+      { file:"assets/audio/simoneta/ss001.mp3", title:"（表示名）強めSSレア1", rarity:"ssrare" },
+
+      // --- ウルトラレア ---
+      { file:"assets/audio/simoneta/u001.mp3", title:"（表示名）強めウルトラ", rarity:"ultra" },
+    ];
+
+    /***********************************************************
+     * 3) ユーティリティ
+     ***********************************************************/
+    function pickWeightedRarity(){
+      const list = Object.values(RARITY);
+      const total = list.reduce((a,b)=>a + b.weight, 0);
+      let r = Math.random() * total;
+      for (const it of list){
+        r -= it.weight;
+        if (r <= 0) return it.key;
+      }
+      return "normal";
+    }
+
+    function pickFromPoolByRarity(pool, rarityKey){
+      const filtered = pool.filter(x => x.rarity === rarityKey);
+      if (filtered.length === 0) return null;
+      return filtered[Math.floor(Math.random() * filtered.length)];
+    }
+
+    function roll(pool){
+      // まずレアリティ抽選 → そのレアリティの中から1つ
+      // もしそのレアリティの弾が0なら、下のレアへフォールバック
+      const order = ["ultra","ssrare","srare","rare","normal"];
+
+      let rarityKey = pickWeightedRarity();
+      let idx = order.indexOf(rarityKey);
+      if (idx < 0) idx = order.length - 1;
+
+      for (let i = idx; i < order.length; i++){
+        const got = pickFromPoolByRarity(pool, order[i]);
+        if (got) return got;
+      }
+      // どうしても無い場合
+      return pool[0] ?? { file:"", title:"(空)", rarity:"normal" };
+    }
+
+    function setResultUI(ui, item){
+      // ui: soft/hard set
+      ui.rarityEl.textContent = rarityLabel(item.rarity);
+      ui.nameEl.textContent = item.title;
+
+      ui.resultBox.className = "result " + item.rarity;
+
+      // fx表示切り替え
+      ui.resultBox.querySelectorAll(".fx").forEach(el => {
+        const fx = el.getAttribute("data-fx");
+        el.style.display = (fx === item.rarity) ? "block" : "none";
+      });
+
+      // play button enable
+      ui.lastFile = item.file;
+      ui.playBtn.classList.add("show");
+
+      // Ultra確定演出（派手）
+      if (item.rarity === "ultra"){
+        ultraShow();
+      }
+    }
+
+    function rarityLabel(key){
+      switch(key){
+        case "rare": return "レア";
+        case "srare": return "Sレア";
+        case "ssrare": return "SSレア";
+        case "ultra": return "ウルトラレア";
+        default: return "ノーマル";
+      }
+    }
+
+    function ultraShow(){
+      const ov = document.getElementById("ultraOverlay");
+      ov.classList.remove("show");
+      // reflow
+      void ov.offsetWidth;
+      ov.classList.add("show");
+      setTimeout(()=>ov.classList.remove("show"), 950);
+    }
+
+    /
+    ***********************************************************
+     * 4) オーディオ再生
+     ***********************************************************/
+    const player = document.getElementById("player");
+
+    async function playFile(path){
+      if (!path) return;
+      try{
+        // 連続再生時のチラつき防止
+        player.pause();
+        player.currentTime = 0;
+        player.src = path;
+
+        // iOS/Androidはユーザー操作からのplayが必要なので
+        // 「再生ボタン」押下時にだけ呼ばれる想定
+        await player.play();
+      }catch(e){
+        // ブラウザ制限 / パス間違い / 未アップロード など
+        alert("再生できなかった！\nファイル名/パスが合ってるか、音声がアップ済みか確認してね。\n\n" + (e?.message ?? ""));
+      }
+    }
+
+    /***********************************************************
+     * 5) ログイン処理
+     ***********************************************************/
+    const loginScreen = document.getElementById("loginScreen");
+    const appScreen = document.getElementById("appScreen");
+    const pwInput = document.getElementById("pw");
+    const enterBtn = document.getElementById("enterBtn");
+    const pwError = document.getElementById("pwError");
+
+    function unlock(){
+      localStorage.setItem(AUTH_KEY, "1");
+      loginScreen.style.display = "none";
+      appScreen.style.display = "block";
+    }
+
+    function lock(){
+      localStorage.removeItem(AUTH_KEY);
+      loginScreen.style.display = "flex";
+      appScreen.style.display = "none";
+    }
+
+    function tryLogin(){
+      const v = pwInput.value ?? "";
+      if (v === PASSWORD){
+        pwError.classList.remove("show");
+        unlock();
+      }else{
+        pwError.classList.add("show");
+      }
+    }
+
+    enterBtn.addEventListener("click", tryLogin);
+    pwInput.addEventListener("keydown", (e)=>{
+      if (e.key === "Enter") tryLogin();
+    });
+
+    // 既にログイン済みならスキップ
+    if (localStorage.getItem(AUTH_KEY) === "1"){
+      unlock();
+    }else{
+      lock();
+    }
+
+    /***********************************************************
+     * 6) ガチャUI紐付け（2つ）
+     ***********************************************************/
+    function makeUI(prefix){
+      return {
+        resultBox: document.getElementById("result" + prefix),
+        rarityEl: document.getElementById("rarity" + prefix),
+        nameEl:   document.getElementById("name" + prefix),
+        rollBtn:  document.getElementById("roll" + prefix),
+        playBtn:  document.getElementById("play" + prefix),
+        lastFile: ""
+      };
+    }
+
+    const uiSoft = makeUI("Soft");
+    const uiHard = makeUI("Hard");
+
+    uiSoft.rollBtn.addEventListener("click", ()=>{
+      const item = roll(POOL_SOFT);
+      setResultUI(uiSoft, item);
+    });
+    uiHard.rollBtn.addEventListener("click", ()=>{
+      const item = roll(POOL_HARD);
+      setResultUI(uiHard, item);
+    });
+
+    uiSoft.playBtn.addEventListener("click", ()=> playFile(uiSoft.lastFile));
+    uiHard.playBtn.addEventListener("click", ()=> playFile(uiHard.lastFile));
+  </script>
+</body>
+</html>
