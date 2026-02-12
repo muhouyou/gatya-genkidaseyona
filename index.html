@@ -15,17 +15,6 @@ body{
   overflow-x:hidden;
 }
 
-/* 背景①：埋める（ぼかし） */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background: url("assets/bg.jpg") center / cover no-repeat;
-  filter: blur(10px) brightness(0.85);
-  transform: scale(1.05); /* ぼかしの端っこ対策 */
-  z-index:-2;
-}
-
 /* 背景②：全部入れる（おじさん完全表示） */
 body::after{
   content:"";
