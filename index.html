@@ -8,9 +8,31 @@
 <style>
 body{
   margin:0;
-  font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
-  background: url("assets/bg.jpg") center center / cover no-repeat;
-  color:white;
+  min-height:100vh;
+  font-family: system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+  color:#fff;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* 背景①：埋める（ぼかし） */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background: url("assets/bg.jpg") center / cover no-repeat;
+  filter: blur(10px) brightness(0.85);
+  transform: scale(1.05); /* ぼかしの端っこ対策 */
+  z-index:-2;
+}
+
+/* 背景②：全部入れる（おじさん完全表示） */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background: url("assets/bg.jpg") center / contain no-repeat;
+  z-index:-1;
 }
   
 /* 共通レイアウト */
