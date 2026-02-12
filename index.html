@@ -1,51 +1,88 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>元気出せよガチャ</title>
-  <style>
-    body {
-      background-color: #1e1e1e;
-      color: #e0e0e0;
-      font-family: sans-serif;
-      text-align: center;
-      padding-top: 100px;
-    }
-    button {
-      background: #444;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 18px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #666;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>元気出せよガチャ</title>
+<style>
+body {
+  background-color: #2b2b2b;
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+  padding: 40px;
+}
+
+h1 {
+  margin-bottom: 40px;
+}
+
+.gacha-box {
+  margin: 30px auto;
+  padding: 20px;
+  width: 300px;
+  background: #3a3a3a;
+  border-radius: 12px;
+}
+
+button {
+  padding: 10px 20px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.result {
+  margin-top: 15px;
+  font-size: 18px;
+  min-height: 24px;
+}
+</style>
 </head>
+
 <body>
 
-  <h1>元気出せよガチャ</h1>
-  <button onclick="draw()">ガチャを回す</button>
+<h1>元気出せよガチャ</h1>
 
-  <p id="result"></p>
+<div class="gacha-box">
+  <h2>🌤 やさしめボイス</h2>
+  <button onclick="drawSoft()">引く</button>
+  <div class="result" id="resultSoft"></div>
+</div>
 
-  <script>
-    const messages = [
-      "元気出せよ。",
-      "今日はちゃんと寝ろ。",
-      "水飲んだ？",
-      "大丈夫だよ。",
-      "お前は悪くない。"
-    ];
+<div class="gacha-box">
+  <h2>🔥 強めボイス</h2>
+  <button onclick="drawStrong()">引く</button>
+  <div class="result" id="resultStrong"></div>
+</div>
 
-    function draw() {
-      const random = Math.floor(Math.random() * messages.length);
-      document.getElementById("result").textContent = messages[random];
-    }
-  </script>
+<script>
+const softVoices = [
+  "大丈夫だよ。",
+  "今日はもう十分えらい。",
+  "無理しなくていい。",
+  "ちゃんと生きてるだけで100点。"
+];
+
+const strongVoices = [
+  "立て。まだいける。",
+  "お前はやれる。",
+  "世界はお前を待ってる。",
+  "甘えるな。でも休め。"
+];
+
+function drawSoft() {
+  const random = softVoices[Math.floor(Math.random() * softVoices.length)];
+  document.getElementById("resultSoft").textContent = random;
+}
+
+function drawStrong() {
+  const random = strongVoices[Math.floor(Math.random() * strongVoices.length)];
+  document.getElementById("resultStrong").textContent = random;
+}
+</script>
 
 </body>
 </html>
