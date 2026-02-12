@@ -1,64 +1,166 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>元気出せよガチャ</title>
 
 <style>
 body{
   margin:0;
-  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
   background:#111;
   color:white;
+}
+
+/* 共通レイアウト */
+.view{
+  min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  min-height:100vh;
-}
-
-.view{
-  width:100%;
-  display:flex;
-  justify-content:center;
+  padding:20px;
 }
 
 .card{
   background:#222;
-  padding:30px;
+  padding:25px;
   border-radius:20px;
+  width:100%;
+  max-width:500px;
   text-align:center;
-  width:90%;
-  max-width:400px;
+  box-shadow:0 0 30px rgba(0,0,0,.4);
 }
 
-h1{
-  margin-bottom:20px;
-}
+h1{ margin-bottom:20px; }
 
 input{
   width:100%;
   padding:12px;
-  border-radius:10px;
+  border-radius:12px;
   border:none;
   margin-bottom:15px;
   font-size:16px;
 }
 
 .btn{
-  padding:12px 20px;
   border:none;
-  border-radius:50px;
-  font-size:16px;
+  border-radius:999px;
+  padding:12px 18px;
+  font-size:14px;
   cursor:pointer;
+  font-weight:bold;
+}
+
+.btn-primary{
   background:white;
   color:black;
-  width:100%;
+}
+
+.btn-play{
+  display:none;
+  margin-top:10px;
+  background:#444;
+  color:white;
 }
 
 .error{
   color:#ff6666;
   margin-top:10px;
+}
+
+/* ガチャ画面 */
+.container{
+  max-width:900px;
+  width:100%;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+
+@media(max-width:700px){
+  .grid{ grid-template-columns:1fr; }
+}
+
+.gacha-box{
+  background:#1c1c1c;
+  padding:20px;
+  border-radius:20px;
+  text-align:center;
+}
+
+.btn-round{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:white;
+  color:black;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.result{
+  margin-top:15px;
+  padding:15px;
+  border-radius:15px;
+  min-height:60px;
+  transition:.3s;
+}
+
+/* レアリティ演出 */
+.normal{ color:white; }
+
+.rare{
+  color:#66ccff;
+  text-shadow:0 0 10px #66ccff;
+}
+
+.srare{
+  color:#cc66ff;
+  text-shadow:0 0 15px #cc66ff;
+}
+
+.ssrare{
+  color:#ffcc00;
+  text-shadow:0 0 20px #ffcc00;
+  animation:shine 1.5s infinite alternate;
+}
+
+.ultra{
+  color:#ff4444;
+  text-shadow:0 0 30px #ff4444;
+  animation:flash .8s infinite alternate;
+}
+
+@keyframes shine{
+  from{ filter:brightness(1); }
+  to{ filter:brightness(1.5); }
+}
+
+@keyframes flash{
+  from{ transform:scale(1); }
+  to{ transform:scale(1.05); }
+}
+
+/* ウルトラ確定演出 */
+.flash-screen{
+  position:fixed;
+  inset:0;
+  background:white;
+  opacity:0;
+  pointer-events:none;
+  animation:flashBang .5s ease-out;
+}
+
+@keyframes flashBang{
+  0%{ opacity:0; }
+  40%{ opacity:.9; }
+  100%{ opacity:0; }
 }
 </style>
 </head>
@@ -69,10 +171,9 @@ input{
 <section id="loginView" class="view">
   <div class="card">
     <h1>元気出せよガチャ</h1>
-
     <form id="loginForm">
-      <input id="passwordInput" type="password" placeholder="パスワード" autocomplete="current-password" />
-      <button type="submit" class="btn">入室</button>
+      <input id="passwordInput" type="password" placeholder="パスワード">
+      <button type="submit" class="btn btn-primary">入室</button>
       <p id="loginError" class="error" style="display:none;">パスワードが違うよ</p>
     </form>
   </div>
@@ -80,53 +181,112 @@ input{
 
 <!-- 🎰 GACHA -->
 <section id="appView" class="view" style="display:none;">
-  <div class="card">
-    <h1>ログイン成功！</h1>
-    <p>ここにガチャ本体を置くよ</p>
+  <div class="container">
+    <h1>元気出せよガチャ</h1>
+
+    <div class="grid">
+
+      <!-- やさしめ -->
+      <div class="gacha-box">
+        <h2>🌤 やさしめ</h2>
+        <button class="btn-round" onclick="draw('soft')">ガチャ</button>
+        <div id="resultSoft" class="result normal">未排出</div>
+        <button id="playSoft" class="btn btn-play" onclick="playAudio()">▶ 再生</button>
+      </div>
+
+      <!-- 強め -->
+      <div class="gacha-box">
+        <h2>🔥 強め</h2>
+        <button class="btn-round" onclick="draw('hard')">ガチャ</button>
+        <div id="resultHard" class="result normal">未排出</div>
+        <button id="playHard" class="btn btn-play" onclick="playAudio()">▶ 再生</button>
+      </div>
+
+    </div>
   </div>
 </section>
 
 <script>
+/* 🔑 パスワード */
+const PASSWORD="muhomuho";
 
-// 🔑 ここを好きなパスワードに変える
-const PASSWORD = "1234";
+/* ログイン処理 */
+const loginView=document.getElementById("loginView");
+const appView=document.getElementById("appView");
+const loginForm=document.getElementById("loginForm");
+const passwordInput=document.getElementById("passwordInput");
+const loginError=document.getElementById("loginError");
 
-const loginView = document.getElementById("loginView");
-const appView = document.getElementById("appView");
-const loginForm = document.getElementById("loginForm");
-const passwordInput = document.getElementById("passwordInput");
-const loginError = document.getElementById("loginError");
-
-function showApp(){
-  loginView.style.display="none";
-  appView.style.display="flex";
-}
-
-function showLogin(){
-  loginView.style.display="flex";
-  appView.style.display="none";
-}
-
-// 既に認証済みならスキップ
-if(sessionStorage.getItem("authed")==="1"){
-  showApp();
-}else{
-  showLogin();
-}
-
-// フォーム送信
 loginForm.addEventListener("submit",function(e){
-  e.preventDefault(); // ← リロード防止（超重要）
-
-  if(passwordInput.value === PASSWORD){
-    sessionStorage.setItem("authed","1");
-    loginError.style.display="none";
-    showApp();
+  e.preventDefault();
+  if(passwordInput.value===PASSWORD){
+    loginView.style.display="none";
+    appView.style.display="flex";
   }else{
     loginError.style.display="block";
   }
 });
 
+/* ガチャデータ */
+const gachaData={
+  soft:[
+    {file:"assets/audio/bougen/a001.mp3",text:"表示名1",rarity:"normal",weight:50},
+    {file:"assets/audio/bougen/a002.mp3",text:"表示名レア",rarity:"rare",weight:25},
+    {file:"assets/audio/bougen/a003.mp3",text:"表示名S",rarity:"srare",weight:15},
+    {file:"assets/audio/bougen/a004.mp3",text:"表示名SS",rarity:"ssrare",weight:7},
+    {file:"assets/audio/bougen/a005.mp3",text:"表示名ULTRA",rarity:"ultra",weight:3}
+  ],
+  hard:[
+    {file:"assets/audio/simoneta/a001.mp3",text:"表示名1",rarity:"normal",weight:50},
+    {file:"assets/audio/simoneta/a002.mp3",text:"表示名レア",rarity:"rare",weight:25},
+    {file:"assets/audio/simoneta/a003.mp3",text:"表示名S",rarity:"srare",weight:15},
+    {file:"assets/audio/simoneta/a004.mp3",text:"表示名SS",rarity:"ssrare",weight:7},
+    {file:"assets/audio/simoneta/a005.mp3",text:"表示名ULTRA",rarity:"ultra",weight:3}
+  ]
+};
+
+let currentAudio=null;
+
+/* 抽選 */
+function draw(type){
+  const pool=gachaData[type];
+  const total=pool.reduce((s,i)=>s+i.weight,0);
+  let rand=Math.random()*total;
+
+  for(let item of pool){
+    if(rand<item.weight){
+      showResult(type,item);
+      currentAudio=item.file;
+      return;
+    }
+    rand-=item.weight;
+  }
+}
+
+/* 結果表示 */
+function showResult(type,item){
+  const box=document.getElementById(type==="soft"?"resultSoft":"resultHard");
+  const playBtn=document.getElementById(type==="soft"?"playSoft":"playHard");
+
+  box.className="result "+item.rarity;
+  box.textContent=item.text;
+
+  playBtn.style.display="inline-block";
+
+  if(item.rarity==="ultra"){
+    const flash=document.createElement("div");
+    flash.className="flash-screen";
+    document.body.appendChild(flash);
+    setTimeout(()=>flash.remove(),500);
+  }
+}
+
+/* 再生 */
+function playAudio(){
+  if(!currentAudio) return;
+  const audio=new Audio(currentAudio);
+  audio.play().catch(()=>alert("音声ファイル確認してね"));
+}
 </script>
 
 </body>
