@@ -184,13 +184,34 @@ function drawGacha(type){
     random -= item.weight;
   }
 }
-
 function showResult(item){
   const resultBox = document.getElementById("result");
+
   resultBox.className = "result-box " + item.rarity;
   resultBox.textContent = item.text;
-}
 
+  // ウルトラ確定演出
+  if(item.rarity === "ultra"){
+
+    // 画面フラッシュ
+    const flash = document.createElement("div");
+    flash.className = "flash-screen";
+    document.body.appendChild(flash);
+
+    setTimeout(()=>{
+      flash.remove();
+    },400);
+
+    // ボックス演出
+    resultBox.classList.add("ultra-effect");
+
+    // 確定表示を一瞬追加
+    resultBox.textContent = "✨✨ ULTRA RARE 確定 ✨✨";
+    setTimeout(()=>{
+      resultBox.textContent = item.text;
+    },500);
+  }
+}
 </script>
 
 </body>
