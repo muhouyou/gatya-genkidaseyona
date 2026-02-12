@@ -1,86 +1,201 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>無法専用ゴミガチャ</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>元気出せよガチャ</title>
+
 <style>
-body {
-  background-color: #2b2b2b;
-  color: white;
-  font-family: sans-serif;
-  text-align: center;
-  padding: 40px;
+:root{
+  --text:#ffffff;
+  --border:rgba(255,255,255,.15);
 }
 
-h1 {
-  margin-bottom: 40px;
+body{
+  margin:0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    url("assets/bg.jpg"); /* ←写真を assets/bg.jpg に置く */
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  color:var(--text);
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  text-align:center;
+  padding:40px 18px;
 }
 
-.gacha-box {
-  margin: 30px auto;
-  padding: 20px;
-  width: 300px;
-  background: #3a3a3a;
-  border-radius: 12px;
+h1{ margin-bottom:30px; }
+
+.wrap{
+  display:flex;
+  gap:20px;
+  justify-content:center;
+  flex-wrap:wrap;
 }
 
-button {
-  padding: 10px 20px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  font-size: 16px;
+.gacha-box{
+  width:340px;
+  background:rgba(30,30,35,.85);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px;
 }
 
-.result {
-  margin-top: 15px;
-  font-size: 18px;
-  min-height: 24px;
+button{
+  padding:10px 18px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.btn-draw{ background:#ffffff; color:#111; }
+.btn-play{
+  background:rgba(255,255,255,.1);
+  color:white;
+  border:1px solid var(--border);
+}
+.hidden{ display:none; }
+
+.result{
+  margin-top:15px;
+  min-height:60px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(0,0,0,.3);
+}
+
+/* ===== レアリティ色 ===== */
+.rar-N   { border-color:rgba(255,255,255,.15); }
+.rar-R   { border-color:#7ec8ff; }
+.rar-SR  { border-color:#ffb347; }
+.rar-SSR { border-color:#ffd700; }
+.rar-UR  { border-color:#ff4df0; }
+
+/* ===== 演出 ===== */
+
+/* R：軽く光る */
+.fx-R{ animation:pulse .8s ease-out 1; }
+@keyframes pulse{
+  0%{ box-shadow:0 0 0 transparent; }
+  50%{ box-shadow:0 0 20px rgba(126,200,255,.4); }
+  100%{ box-shadow:0 0 0 transparent; }
+}
+
+/* SR：キラっと */
+.fx-SR{ animation:shine 0.8s ease-out 1; }
+@keyframes shine{
+  0%{ box-shadow:0 0 0 transparent; }
+  50%{ box-shadow:0 0 25px rgba(255,179,71,.5); }
+  100%{ box-shadow:0 0 0 transparent; }
+}
+
+/* SSR：ズーム＋発光 */
+.fx-SSR{ animation:pop 0.6s ease-out 1; }
+@keyframes pop{
+  0%{ transform:scale(.95); }
+  50%{ transform:scale(1.05); box-shadow:0 0 30px rgba(255,215,0,.6); }
+  100%{ transform:scale(1); }
+}
+
+/* UR：神演出 */
+.fx-UR{
+  animation:ultimate 1s ease-out 1;
+}
+@keyframes ultimate{
+  0%{ transform:scale(.9) rotate(0deg); }
+  30%{ transform:scale(1.1) rotate(1deg); box-shadow:0 0 40px rgba(255,77,240,.8); }
+  60%{ transform:scale(1.05) rotate(-1deg); }
+  100%{ transform:scale(1) rotate(0deg); }
 }
 </style>
 </head>
 
 <body>
+<h1>元気出せよガチャ</h1>
 
-<h1>無法専用ゴミガチャ</h1>
+<div class="wrap">
 
-<div class="gacha-box">
-  <h2>下</h2>
-  <button onclick="drawSoft()">引く</button>
-  <div class="result" id="resultSoft"></div>
+  <div class="gacha-box">
+    <h2>🌤 やさしめ</h2>
+    <button class="btn-draw" onclick="draw('soft')">ガチャ</button>
+    <div class="result" id="softResult">未排出</div>
+    <button class="btn-play hidden" id="softPlay" onclick="play('soft')">▶ 再生</button>
+  </div>
+
+  <div class="gacha-box">
+    <h2>🔥 強め</h2>
+    <button class="btn-draw" onclick="draw('strong')">ガチャ</button>
+    <div class="result" id="strongResult">未排出</div>
+    <button class="btn-play hidden" id="strongPlay" onclick="play('strong')">▶ 再生</button>
+  </div>
+
 </div>
 
-<div class="gacha-box">
-  <h2>暴</h2>
-  <button onclick="drawStrong()">引く</button>
-  <div class="result" id="resultStrong"></div>
-</div>
+<audio id="player"></audio>
 
 <script>
-const softVoices = [
-  "大丈夫だよ。",
-  "今日はもう十分えらい。",
-  "無理しなくていい。",
-  "ちゃんと生きてるだけで100点。"
+let state = { soft:null, strong:null };
+
+/* ===== データ ===== */
+const softPool = [
+  { file:"audio/soft01.mp3", rarity:"N",   label:"ノーマル" },
+  { file:"audio/soft02.mp3", rarity:"R",   label:"レア！" },
+  { file:"audio/soft03.mp3", rarity:"SR",  label:"Sレア！" },
+  { file:"audio/soft04.mp3", rarity:"SSR", label:"SSレア！！" },
+  { file:"audio/soft05.mp3", rarity:"UR",  label:"ウルトラレア！！！" }
 ];
 
-const strongVoices = [
-  "立て。まだいける。",
-  "お前はやれる。",
-  "世界はお前を待ってる。",
-  "甘えるな。でも休め。"
+const strongPool = [
+  { file:"audio/strong01.mp3", rarity:"N",   label:"ノーマル" },
+  { file:"audio/strong02.mp3", rarity:"R",   label:"レア！" },
+  { file:"audio/strong03.mp3", rarity:"SR",  label:"Sレア！" },
+  { file:"audio/strong04.mp3", rarity:"SSR", label:"SSレア！！" },
+  { file:"audio/strong05.mp3", rarity:"UR",  label:"ウルトラレア！！！" }
 ];
 
-function drawSoft() {
-  const random = softVoices[Math.floor(Math.random() * softVoices.length)];
-  document.getElementById("resultSoft").textContent = random;
+/* ===== 抽選（個数＝確率） ===== */
+function pickRandom(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
 }
 
-function drawStrong() {
-  const random = strongVoices[Math.floor(Math.random() * strongVoices.length)];
-  document.getElementById("resultStrong").textContent = random;
+function clearFx(el){
+  el.className="result";
+}
+
+function applyFx(el,rarity){
+  el.classList.add("rar-"+rarity);
+  if(rarity==="R") el.classList.add("fx-R");
+  if(rarity==="SR") el.classList.add("fx-SR");
+  if(rarity==="SSR") el.classList.add("fx-SSR");
+  if(rarity==="UR") el.classList.add("fx-UR");
+}
+
+function draw(which){
+  const pool = which==="soft" ? softPool : strongPool;
+  const item = pickRandom(pool);
+  state[which]=item;
+
+  const box = document.getElementById(which+"Result");
+  clearFx(box);
+  box.textContent = item.label;
+  applyFx(box,item.rarity);
+
+  document.getElementById(which+"Play").classList.remove("hidden");
+}
+
+function play(which){
+  const item = state[which];
+  if(!item){ alert("先にガチャを引いてね"); return; }
+
+  const player = document.getElementById("player");
+  player.src=item.file;
+  player.play().catch(()=>{
+    alert("audioフォルダにmp3を置いてね");
+  });
 }
 </script>
 
