@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>元気出せよガチャ</title>
+  <style>
+    body {
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 100px;
+    }
+    button {
+      background: #444;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body>
 
+  <h1>元気出せよガチャ</h1>
+  <button onclick="draw()">ガチャを回す</button>
+
+  <p id="result"></p>
+
+  <script>
+    const messages = [
+      "元気出せよ。",
+      "今日はちゃんと寝ろ。",
+      "水飲んだ？",
+      "大丈夫だよ。",
+      "お前は悪くない。"
+    ];
+
+    function draw() {
+      const random = Math.floor(Math.random() * messages.length);
+      document.getElementById("result").textContent = messages[random];
+    }
+  </script>
+
+</body>
+</html>
