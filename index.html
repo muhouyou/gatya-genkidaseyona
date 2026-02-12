@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>元気出せよガチャ</title>
 
 <style>
@@ -14,189 +14,183 @@
 body{
   margin:0;
   background-image:
-    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
     url("assets/bg.jpg");
-  background-size:contain;
+  background-size:cover;
   background-position:center 25%;
   background-repeat:no-repeat;
   color:var(--text);
-  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
   text-align:center;
   padding:40px 18px;
+  min-height:100vh;
 }
 
-h1{ margin-bottom:30px; }
-
-.wrap{
-  display:flex;
-  gap:20px;
-  justify-content:center;
-  flex-wrap:wrap;
+h1{
+  margin-bottom:30px;
 }
 
-.gacha-box{
-  width:340px;
-  background:rgba(30,30,35,.85);
+/* ガチャ全体 */
+.container{
+  max-width:500px;
+  margin:0 auto;
+  padding:30px;
+  background:rgba(0,0,0,.45);
+  border-radius:20px;
+  backdrop-filter:blur(8px);
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:18px;
 }
 
-button{
-  padding:10px 18px;
-  margin-top:10px;
+/* 横並びボタン */
+.main-buttons{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  margin-top:20px;
+  margin-bottom:30px;
+}
+
+/* 丸ボタン */
+.main-buttons button{
+  width:90px;
+  height:90px;
+  border-radius:50%;
   border:none;
-  border-radius:10px;
+  background:white;
+  color:#222;
+  font-size:14px;
+  font-weight:bold;
   cursor:pointer;
+  transition:.25s;
+}
+
+.main-buttons button:hover{
+  transform:scale(1.1);
+}
+
+/* 結果表示 */
+.result-box{
+  margin-top:20px;
+  padding:20px;
+  border-radius:15px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  min-height:80px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
   font-weight:bold;
 }
 
-.btn-draw{ background:#ffffff; color:#111; }
-.btn-play{
-  background:rgba(255,255,255,.1);
-  color:white;
-  border:1px solid var(--border);
-}
-.hidden{ display:none; }
+/* レアリティ演出 */
+.normal { color:white; }
 
-.result{
-  margin-top:15px;
-  min-height:60px;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:rgba(0,0,0,.3);
+.rare {
+  color:#66ccff;
+  text-shadow:0 0 10px #66ccff;
 }
 
-/* ===== レアリティ色 ===== */
-.rar-N   { border-color:rgba(255,255,255,.15); }
-.rar-R   { border-color:#7ec8ff; }
-.rar-SR  { border-color:#ffb347; }
-.rar-SSR { border-color:#ffd700; }
-.rar-UR  { border-color:#ff4df0; }
-
-/* ===== 演出 ===== */
-
-/* R：軽く光る */
-.fx-R{ animation:pulse .8s ease-out 1; }
-@keyframes pulse{
-  0%{ box-shadow:0 0 0 transparent; }
-  50%{ box-shadow:0 0 20px rgba(126,200,255,.4); }
-  100%{ box-shadow:0 0 0 transparent; }
+.srare {
+  color:#cc66ff;
+  text-shadow:0 0 15px #cc66ff;
 }
 
-/* SR：キラっと */
-.fx-SR{ animation:shine 0.8s ease-out 1; }
+.ssrare {
+  color:#ffcc00;
+  text-shadow:0 0 20px #ffcc00;
+  animation:shine 1.5s infinite alternate;
+}
+
+.ultra {
+  color:#ff4444;
+  text-shadow:0 0 25px #ff4444;
+  animation:flash .8s infinite alternate;
+}
+
 @keyframes shine{
-  0%{ box-shadow:0 0 0 transparent; }
-  50%{ box-shadow:0 0 25px rgba(255,179,71,.5); }
-  100%{ box-shadow:0 0 0 transparent; }
+  from{ filter:brightness(1); }
+  to{ filter:brightness(1.5); }
 }
 
-/* SSR：ズーム＋発光 */
-.fx-SSR{ animation:pop 0.6s ease-out 1; }
-@keyframes pop{
-  0%{ transform:scale(.95); }
-  50%{ transform:scale(1.05); box-shadow:0 0 30px rgba(255,215,0,.6); }
-  100%{ transform:scale(1); }
+@keyframes flash{
+  from{ transform:scale(1); }
+  to{ transform:scale(1.05); }
 }
 
-/* UR：神演出 */
-.fx-UR{
-  animation:ultimate 1s ease-out 1;
-}
-@keyframes ultimate{
-  0%{ transform:scale(.9) rotate(0deg); }
-  30%{ transform:scale(1.1) rotate(1deg); box-shadow:0 0 40px rgba(255,77,240,.8); }
-  60%{ transform:scale(1.05) rotate(-1deg); }
-  100%{ transform:scale(1) rotate(0deg); }
+/* スマホ微調整 */
+@media (max-width:600px){
+  .main-buttons button{
+    width:75px;
+    height:75px;
+    font-size:13px;
+  }
 }
 </style>
 </head>
 
 <body>
+
 <h1>元気出せよガチャ</h1>
 
-<div class="wrap">
+<div class="container">
 
-  <div class="gacha-box">
-    <h2>🌤 やさしめ</h2>
-    <button class="btn-draw" onclick="draw('soft')">ガチャ</button>
-    <div class="result" id="softResult">未排出</div>
-    <button class="btn-play hidden" id="softPlay" onclick="play('soft')">▶ 再生</button>
+  <div class="main-buttons">
+    <button onclick="drawGacha('yasashime')">🌤<br>やさしめ</button>
+    <button onclick="drawGacha('tsuyome')">🔥<br>強め</button>
   </div>
 
-  <div class="gacha-box">
-    <h2>🔥 強め</h2>
-    <button class="btn-draw" onclick="draw('strong')">ガチャ</button>
-    <div class="result" id="strongResult">未排出</div>
-    <button class="btn-play hidden" id="strongPlay" onclick="play('strong')">▶ 再生</button>
+  <div id="result" class="result-box">
+    未排出
   </div>
 
 </div>
 
-<audio id="player"></audio>
-
 <script>
-let state = { soft:null, strong:null };
 
-/* ===== データ ===== */
-const softPool = [
-  { file:"audio/soft01.mp3", rarity:"N",   label:"ノーマル" },
-  { file:"audio/soft02.mp3", rarity:"R",   label:"レア！" },
-  { file:"audio/soft03.mp3", rarity:"SR",  label:"Sレア！" },
-  { file:"audio/soft04.mp3", rarity:"SSR", label:"SSレア！！" },
-  { file:"audio/soft05.mp3", rarity:"UR",  label:"ウルトラレア！！！" }
-];
+/* ===== ガチャデータ ===== */
 
-const strongPool = [
-  { file:"audio/strong01.mp3", rarity:"N",   label:"ノーマル" },
-  { file:"audio/strong02.mp3", rarity:"R",   label:"レア！" },
-  { file:"audio/strong03.mp3", rarity:"SR",  label:"Sレア！" },
-  { file:"audio/strong04.mp3", rarity:"SSR", label:"SSレア！！" },
-  { file:"audio/strong05.mp3", rarity:"UR",  label:"ウルトラレア！！！" }
-];
+const gachaData = {
+  yasashime: [
+    { text:"だいじょうぶ。今日は休んでいい。", rarity:"normal", weight:50 },
+    { text:"ちゃんとやれてるよ。", rarity:"rare", weight:25 },
+    { text:"無理しなくていい。ほんとに。", rarity:"srare", weight:15 },
+    { text:"アタシはちゃんと見てる。", rarity:"ssrare", weight:7 },
+    { text:"生きてるだけで満点だ。", rarity:"ultra", weight:3 }
+  ],
+  tsuyome: [
+    { text:"起きろ！！！！", rarity:"normal", weight:50 },
+    { text:"やれるって言ったよな？", rarity:"rare", weight:25 },
+    { text:"甘えんな。でも好きだ。", rarity:"srare", weight:15 },
+    { text:"逃げんな。横にいるから。", rarity:"ssrare", weight:7 },
+    { text:"お前なら世界獲れる。", rarity:"ultra", weight:3 }
+  ]
+};
 
-/* ===== 抽選（個数＝確率） ===== */
-function pickRandom(arr){
-  return arr[Math.floor(Math.random()*arr.length)];
+/* ===== 抽選処理 ===== */
+
+function drawGacha(type){
+
+  const pool = gachaData[type];
+
+  const totalWeight = pool.reduce((sum,item)=>sum+item.weight,0);
+  let random = Math.random() * totalWeight;
+
+  for(let item of pool){
+    if(random < item.weight){
+      showResult(item);
+      return;
+    }
+    random -= item.weight;
+  }
 }
 
-function clearFx(el){
-  el.className="result";
+function showResult(item){
+  const resultBox = document.getElementById("result");
+  resultBox.className = "result-box " + item.rarity;
+  resultBox.textContent = item.text;
 }
 
-function applyFx(el,rarity){
-  el.classList.add("rar-"+rarity);
-  if(rarity==="R") el.classList.add("fx-R");
-  if(rarity==="SR") el.classList.add("fx-SR");
-  if(rarity==="SSR") el.classList.add("fx-SSR");
-  if(rarity==="UR") el.classList.add("fx-UR");
-}
-
-function draw(which){
-  const pool = which==="soft" ? softPool : strongPool;
-  const item = pickRandom(pool);
-  state[which]=item;
-
-  const box = document.getElementById(which+"Result");
-  clearFx(box);
-  box.textContent = item.label;
-  applyFx(box,item.rarity);
-
-  document.getElementById(which+"Play").classList.remove("hidden");
-}
-
-function play(which){
-  const item = state[which];
-  if(!item){ alert("先にガチャを引いてね"); return; }
-
-  const player = document.getElementById("player");
-  player.src=item.file;
-  player.play().catch(()=>{
-    alert("audioフォルダにmp3を置いてね");
-  });
-}
 </script>
 
 </body>
