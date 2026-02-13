@@ -390,7 +390,6 @@ function showResult(type,item){
   if(item.rarity === "ultra"){
     flashBang();
   }
-
 }
  
 function flashBang(){
@@ -401,8 +400,6 @@ function flashBang(){
   flash.addEventListener("animationend", () => flash.remove(), { once:true });
 }
 
-/* 再生 */
-function playAudio(){
 /* 再生 */
 function playAudio(){
   if(!currentAudio) return;
