@@ -177,11 +177,13 @@ input{
 .rare{
   color:#66ccff;
   text-shadow:0 0 10px #66ccff;
+  animation:glow 1s ease-in-out infinite alternate;
 }
 
 .srare{
   color:#cc66ff;
   text-shadow:0 0 15px #cc66ff;
+  animation: superFlash 0.6s ease-in-out 3;
 }
 
 .ssrare{
@@ -196,23 +198,36 @@ input{
   animation:flash .8s infinite alternate;
 }
 
+@keyframes glow{
+  from{text-shadow: 0 0 6px rgba(102,204,255,0.6);}
+  to{text-shadow: 0 0  18px rgba(102,204,255,1);}
+}
+
 @keyframes shine{
   from{ filter:brightness(1); }
   to{ filter:brightness(1.5); }
 }
 
-@keyframes flash{
-  from{ transform:scale(1); }
-  to{ transform:scale(1.05); }
+@keyframes superFlash{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+  100%{transform:scale(1);}
 }
 
-/* ウルトラ確定演出 */
+@keyframes flash{
+  0%{opacity:1;}
+  50%{opacity:0.2;}
+  100%{opacity:1;}
+}
+  
+  /* ウルトラ確定演出 */
 .flash-screen{
   position:fixed;
   inset:0;
   background:white;
   opacity:0;
   pointer-events:none;
+  z-index:9999;
   animation:flashBang .5s ease-out;
 }
 
@@ -322,18 +337,18 @@ loginForm.addEventListener("submit",function(e){
 /* ガチャデータ */
 const gachaData={
   soft:[
-    {file:"assets/audio/bougen/a001.mp3",text:"表示名1",rarity:"normal",weight:50},
-    {file:"assets/audio/bougen/a002.mp3",text:"表示名レア",rarity:"rare",weight:25},
-    {file:"assets/audio/bougen/a003.mp3",text:"表示名S",rarity:"srare",weight:15},
-    {file:"assets/audio/bougen/a004.mp3",text:"表示名SS",rarity:"ssrare",weight:7},
-    {file:"assets/audio/bougen/a005.mp3",text:"表示名ULTRA",rarity:"ultra",weight:3}
+    {file:"assets/audio/bougen/a001.mp3",text:"ノーマル",rarity:"normal",weight:50},
+    {file:"assets/audio/bougen/a002.mp3",text:"レア",rarity:"rare",weight:25},
+    {file:"assets/audio/bougen/a003.mp3",text:"Sレア!",rarity:"srare",weight:15},
+    {file:"assets/audio/bougen/a004.mp3",text:"SSレア!!",rarity:"ssrare",weight:7},
+    {file:"assets/audio/bougen/a005.mp3",text:"ULTRAレア！！！",rarity:"ultra",weight:3}
   ],
   hard:[
-    {file:"assets/audio/simoneta/a001.mp3",text:"表示名1",rarity:"normal",weight:50},
-    {file:"assets/audio/simoneta/a002.mp3",text:"表示名レア",rarity:"rare",weight:25},
-    {file:"assets/audio/simoneta/a003.mp3",text:"表示名S",rarity:"srare",weight:15},
-    {file:"assets/audio/simoneta/a004.mp3",text:"表示名SS",rarity:"ssrare",weight:7},
-    {file:"assets/audio/simoneta/a005.mp3",text:"表示名ULTRA",rarity:"ultra",weight:3}
+    {file:"assets/audio/simoneta/b001.mp3",text:"ノーマル",rarity:"normal",weight:50},
+    {file:"assets/audio/simoneta/b002.mp3",text:"レア",rarity:"rare",weight:25},
+    {file:"assets/audio/simoneta/b003.mp3",text:"Sレア！",rarity:"srare",weight:15},
+    {file:"assets/audio/simoneta/b004.mp3",text:"SSレア！！",rarity:"ssrare",weight:7},
+    {file:"assets/audio/simoneta/b005.mp3",text:"ULTRAレア！！！",rarity:"ultra",weight:3}
   ]
 };
 
@@ -360,19 +375,34 @@ function showResult(type,item){
   const box=document.getElementById(type==="soft"?"resultSoft":"resultHard");
   const playBtn=document.getElementById(type==="soft"?"playSoft":"playHard");
 
-  box.className="result "+item.rarity;
-  box.textContent=item.text;
+  const rarityClasses = ["normal","rare","srare","ssrare","ultra"];
 
-  playBtn.style.display="inline-block";
+  box.classList.remove(...rarityClasses);
+  box.classList.add("result");
 
-  if(item.rarity==="ultra"){
-    const flash=document.createElement("div");
-    flash.className="flash-screen";
-    document.body.appendChild(flash);
-    setTimeout(()=>flash.remove(),500);
+  // 同じレア度連続でもアニメを確実に再起動
+  void box.offsetWidth;
+
+  box.classList.add(item.rarity);
+  box.textContent = item.text;
+  playBtn.style.display = "inline-block";
+
+  if(item.rarity === "ultra"){
+    flashBang();
   }
+
+}
+ 
+function flashBang(){
+  const flash = document.createElement("div");
+  flash.className = "flash-screen";
+  document.body.appendChild(flash);
+
+  flash.addEventListener("animationend", () => flash.remove(), { once:true });
 }
 
+/* 再生 */
+function playAudio(){
 /* 再生 */
 function playAudio(){
   if(!currentAudio) return;
