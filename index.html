@@ -101,6 +101,7 @@ input{
 .container{
   max-width:900px;
   width:100%;
+  margin:0 auto;
 }
 
 @media(max-width:600px){
@@ -112,9 +113,9 @@ input{
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(2, minmax(140px, 1fr));
-  gap:24px;
-  justify-items:center;
+  grid-template-columns:repeat(2, 220px);
+  gap:40px;
+  justify-content:center;
   width:100%;
 }
 
@@ -131,9 +132,9 @@ input{
   -webkit-backdrop-filter: blur(10px);
   padding:18px;
   border-radius:25px;
-  width:100%;
-  max-width:220px;
-  margin:0 auto;
+  width:220%;
+  max-width:none;
+  margin:0;
   text-align:center;
   border:1px solid rgba(255,255,255,0.10);
   box-shadow: 0 0 30px rgba(0,0,0,0.35);
