@@ -105,16 +105,16 @@ input{
 
 .grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
+  grid-template-columns:repeat(2, minmax(140px, 1fr));
+  gap:24px;
   justify-items:center;
+  width:100%;
 }
 
 @media(max-width:600px){
   .grid{
-    dispulay:grid;
-    grid-template-columns:repeat(2, minmax(140px,1fr));
-    gap:28px
+    grid-template-columns:1fr 1fr;
+    gap:16px
 }
 
 .gacha-box{
