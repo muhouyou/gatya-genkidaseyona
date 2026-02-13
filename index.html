@@ -189,7 +189,7 @@ input{
 .ssrare{
   color:#ffcc00;
   text-shadow:0 0 20px #ffcc00;
-  animation:shine 1.5s infinite alternate;
+  animation:shine 1.5s infinite alternate,bounceText 0.8s ease-in-out infinite;
 }
 
 .ultra{
@@ -198,6 +198,14 @@ input{
   animation:flash .8s infinite alternate;
 }
 
+@keyframes bounceText{
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-8px); }
+  50%  { transform: translateY(0); }
+  70%  { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+  
 @keyframes glow{
   from{text-shadow: 0 0 6px rgba(102,204,255,0.6);}
   to{text-shadow: 0 0  18px rgba(102,204,255,1);}
